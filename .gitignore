@@ -1,0 +1,20 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.log
+events.log
+
+# Local secrets and settings
+.env
+.env.*
+!.env.example
+
+# Downloaded model archives and unused legacy large models
+*.zip
+/models/
+
+# Packaging output
+build/
+dist/

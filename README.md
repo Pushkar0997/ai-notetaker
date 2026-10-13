@@ -17,7 +17,7 @@ The meeting application must render remote voices to the selected Windows output
 
 - Windows 10 or 11, Python 3.10–3.12, and a working output or microphone device.
 - Included Vosk models: `model-english` and `model-hindi` (models run locally).
-- About 100 MB for the environment plus the existing model files. Disk use is dominated by the offline models.
+- Roughly 300 MB for the Python environment and both offline speech models; exact use varies by Python and dependency versions.
 
 ## Install and run
 
@@ -45,7 +45,4 @@ Audio is processed on the computer and is not written to disk. Transcripts and s
 - `detector.py` — attendance, configured name, and custom phrase matching.
 - `model-english/`, `model-hindi/` — included offline recognition models.
 - `spec/` — product, architecture, invariants, plan, tasks, and acceptance criteria.
-
-## Previous prototype launchers
-
-`main_auto.py` and `main_enhanced.py` remain as compatibility launchers and open the same application.
+- `THIRD_PARTY_NOTICES.md` and `LICENSES/Apache-2.0.txt` — attribution and license information for bundled Vosk models.
