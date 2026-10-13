@@ -13,6 +13,8 @@ Reference-model evaluation was run locally on five public labeled clips per lang
 | EV-5 | C-5 local note durability | Stop a session and inspect Markdown; confirm queued segments flush | PENDING |
 | EV-6 | C-6 bounded optional gain | Three clean clips per language digitally attenuated 10×, then compared with gain off/on; peak clipping counted | PARTIAL (no real-room noise test) |
 | EV-7 | Recognition quality and throughput | Same five public labeled clips per language through Vosk and Whisper base; average WER and inference wall time recorded below | COMPLETE (directional only) |
+| EV-8 | Recognition across loopback playback volumes | Same spoken sample at ordinary low/high Windows output levels; compare capture level, WER, and clipping with gain off/on | PENDING |
+| EV-9 | English/Hindi automatic switching | Mixed and changing-language clips; measure language decisions, transcript quality, switch delay, CPU, and peak RAM on target PC | PENDING |
 
 ## EV-7 — Reference comparison (2026-10-13)
 
@@ -65,3 +67,7 @@ M0 remains OPEN until target-machine smoke outcomes and performance observations
 ## 2026-10-13 — User-reported live test failure
 
 User reports no transcript while speaking and only a few inaccurate words while music played; no alert was generated. The selected device, live level, language, phrase configuration, and timing during this run were not recorded. This does not establish whether the cause was routing/level, language mismatch, recognizer delay/accuracy, or an alert phrase mismatch. Added a transient one-second RMS level display and explicit selected-source status for the next diagnostic run. Hardware behavior remains UNVERIFIED; repeat the short smoke checks with a spoken phrase in the selected language and a configured alert phrase.
+
+## 2026-10-13 — User-reported follow-up class test
+
+User reports English transcription was usable but slow, and the attendance alert appeared. Hindi required manual language selection and remained slow with poor accuracy. This is the first positive live alert report; device, exact phrase/sample, dBFS, and timings were not measured, so it does not close M0. User requests eventual English/Hindi auto-switching and similar recognition at reasonable low/high speaker volumes. Added EV-8/EV-9 to measure those requirements before changing gain or model defaults. No new hardware or model comparison was run in this turn.

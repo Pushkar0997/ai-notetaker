@@ -1,5 +1,15 @@
 # Agent log
 
+## 2026-10-13 — Desktop — Record live class results and follow-up requirements
+
+**Milestone:** M0 — target-machine correctness and validation (OPEN)
+**Tasks attempted:** M0-VAL-02 planning; M2-ASR-01 backlog
+**Landed:** Recorded user's positive English attendance-alert result, slow English/Hindi rendering, weak Hindi accuracy, and requested automatic English/Hindi switching and consistent recognition across ordinary speaker levels. Added validation criteria for playback-volume comparison and bilingual auto-switching.
+**Did not land:** No new ASR model, gain default, or auto-switch implementation; current measurements do not show that a replacement will fit the older i3/8 GB target.
+**Blockers:** Need a controlled low/high output-level sample comparison and local Hindi/auto-switch candidate evaluation on the target PC.
+**Spec changes:** Updated product, decisions, plan, tasks, and evaluation record.
+**Next action:** Run EV-8 with the same spoken sample at two Windows output levels; then scope EV-9 against one-recognizer memory and CPU constraints.
+
 ## 2026-10-13 — Desktop — Make audio capture observable after failed user test
 
 **Milestone:** M0 — target-machine correctness and validation (OPEN)

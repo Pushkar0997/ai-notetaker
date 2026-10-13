@@ -20,9 +20,11 @@
 - [x] **M1-OPT-01** — Lazy-load recognition and array libraries until session start/capture in `notetaker/`.
 - [x] **M1-LICENSE-01** — Preserve Hindi Vosk model attribution and Apache license when publishing bundled model.
 - [x] **M1-DIAG-01** — Show selected source and transient capture RMS so users can tell whether audio reaches recognition; clarify alert triggers and music-test limitations.
+- [ ] **M0-VAL-02** — Compare quiet and normal Windows loopback playback levels with the capture meter, clipping, and a known spoken sample; decide whether loopback-specific gain should be automatic.
 
 ## Backlog — do not start before M0 closes
 
+- **M2-ASR-01** — Evaluate local English/Hindi auto-detection and recognizer switching, including code-switching, switch delay, CPU, and peak RAM on the target PC; preserve one loaded recognizer if feasible.
 - **M2-TELEGRAM-01** — Add explicit opt-in Telegram bot/chat settings, secret storage guidance, and delivery status.
 - **M2-NOTES-01** — Explore extractive topic/action notes that need no second large model; keep transcript as source of truth.
 - **M2-PACKAGE-01** — Produce and verify a packaged Windows build on a clean machine.

@@ -28,9 +28,14 @@
 
 ## M2 — External alerts and release polish (BACKLOG)
 
-**Deliverable:** User-approved notification destinations, packaged setup, improved note summaries.
+**Deliverable:** User-approved notification destinations, packaged setup, improved note summaries, and measured English/Hindi auto-switching.
 **Exit criteria:** each externally visible feature has opt-in setup, credential handling, failure feedback, privacy text, and verified clean-machine behavior.
 **Blocking:** M0. Do not start until the local monitor is validated.
+
+## Additional validation follow-ups
+
+- Compare ordinary low and high system playback levels using the same spoken sample and inspect capture dBFS/clipping. The desired behavior is similar recognition quality across playback levels; the current quiet-audio gain is optional and not proven to deliver that.
+- The current UI requires manual language selection. Automatic English/Hindi switching is requested for a later milestone; measure accuracy and CPU/RAM before choosing an implementation.
 
 ## Anti-goals for M0/M1
 
