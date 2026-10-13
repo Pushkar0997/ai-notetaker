@@ -7,6 +7,7 @@ Run on the target Windows 10/11 PC. Record OS, Python version, chosen device, mo
 - [ ] On a clean supported Python install, run `run_windows.bat`; package installation completes and the app window opens.
 - [ ] In English, confirm first use downloads Whisper base.en once and a later session starts offline. For Hindi, confirm the bundled model loads without a download.
 - [ ] Refresh lists the actual Windows loopback output and microphone sources, if present.
+- [ ] During capture, confirm the displayed source matches the chosen speaker output or microphone and the one-second audio level rises while speaking/playing audio; check whether silence remains when audio is expected.
 
 ## Class monitoring
 
@@ -14,6 +15,7 @@ Run on the target Windows 10/11 PC. Record OS, Python version, chosen device, mo
 - [ ] Repeat with a known Hindi phrase and Hindi selected.
 - [ ] Speak a configured name; the alert panel and local beep fire once, then are suppressed for the cooldown.
 - [ ] Play attendance phrases; an attendance alert appears.
+- [ ] Confirm ordinary speech/music without configured trigger phrases does not alert; use spoken attendance/name phrases to verify alerts (singing is not a reliable ASR check).
 - [ ] Compare a quiet known phrase with **Automatically boost quiet audio** off and on; record whether speech becomes clearer and whether background noise causes false recognition.
 - [ ] Stop during speech; the app stops capture and the Markdown note includes recognized final text.
 - [ ] Confirm the exact Markdown path stays visible after Stop; **Open notes folder** opens its parent folder and the file exists there.

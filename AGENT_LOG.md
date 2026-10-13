@@ -1,5 +1,15 @@
 # Agent log
 
+## 2026-10-13 — Desktop — Make audio capture observable after failed user test
+
+**Milestone:** M0 — target-machine correctness and validation (OPEN)
+**Tasks attempted:** M1-DIAG-01
+**Landed:** Added a transient one-second RMS meter for audio sent to the recognizer, shows selected source in listening status, and clarified that alerts require a recognized trigger phrase and that singing is a poor speech test. No audio is stored for the meter.
+**Did not land:** Device-specific capture verification; the failed run's device, level, language, timing, and phrase configuration were not recorded.
+**Blockers:** A brief target-PC check is still needed to see whether the meter rises on speech and whether a correctly configured spoken trigger transcribes.
+**Spec changes:** Updated architecture, smoke checklist, tasks, evaluation record, and README.
+**Next action:** Start a short session, read the selected source and dBFS level while speaking a test phrase, then use the spoken phrase “attendance check” or say one exact watched name. Allow at least 15–20 seconds for English results.
+
 ## 2026-10-13 — Desktop — Compare and tune local speech recognition
 
 **Milestone:** M0 — target-machine correctness and validation (OPEN)

@@ -35,6 +35,7 @@ class NotetakerApp:
         self.closing = False
         self.audio_drops = 0
         self.capture_failed = False
+        self.input_level_dbfs: float | None = None
         self.notes_failed = False
         self.notes_error_reported = False
         self.transcript_line_count = 0
@@ -95,6 +96,8 @@ class NotetakerApp:
         ttk.Button(controls, text="Open notes folder", command=self.open_notes_folder).pack(side="left", padx=(0, 8))
         self.status_var = tk.StringVar(value="Ready · choose the audio output used by your meeting app")
         ttk.Label(controls, textvariable=self.status_var, wraplength=520).pack(side="left", padx=10)
+        self.level_var = tk.StringVar(value="Audio to recognizer: waiting for session")
+        ttk.Label(outer, textvariable=self.level_var, foreground="#555555").pack(anchor="w", pady=(0, 4))
         self.notes_var = tk.StringVar(value=f"Session notes folder: {notes_dir()}")
         ttk.Label(outer, textvariable=self.notes_var, foreground="#555555", wraplength=810).pack(anchor="w", pady=(0, 8))
 
@@ -111,7 +114,7 @@ class NotetakerApp:
         scroll.pack(side="right", fill="y")
         ttk.Label(
             outer,
-            text="Loopback listens to the selected Windows output. Muting your meeting microphone is fine. Speaker-volume mute behavior varies by device; output routing or apps that stop rendering can interrupt capture.",
+            text="System audio captures sound rendered to the selected Windows output; microphone captures only that input device. Muting your meeting microphone is fine when using system audio. Alerts need a recognized configured name, custom phrase, or attendance phrase. Singing is a poor speech test.",
             foreground="#555555", wraplength=810,
         ).pack(anchor="w", pady=(4, 0))
 
@@ -168,6 +171,8 @@ class NotetakerApp:
         self.stop_worker.clear()
         self.audio_drops = 0
         self.capture_failed = False
+        self.input_level_dbfs = None
+        self.level_var.set("Audio to recognizer: waiting for audio capture")
         self.cooldowns.clear()
         self.transcript.configure(state="normal")
         self.transcript.delete("1.0", "end")
@@ -182,6 +187,7 @@ class NotetakerApp:
             self._queue_audio,
             self._capture_error,
             auto_gain=self.config["auto_gain"],
+            on_level=self._capture_level,
         )
         self.active = True
         self.start_button.configure(state="disabled")
@@ -210,6 +216,9 @@ class NotetakerApp:
     def _capture_error(self, error: str) -> None:
         self.stop_worker.set()
         self.ui_queue.put(("error", error))
+
+    def _capture_level(self, dbfs: float) -> None:
+        self.ui_queue.put(("input_level", dbfs))
 
     def _transcribe(self, language: str, detector: Detector) -> None:
         try:
@@ -262,10 +271,21 @@ class NotetakerApp:
                 elif event[0] == "recognizer_ready":
                     if self.active and not self.stop_worker.is_set() and self.audio:
                         self.audio.start()
-                        self.status_var.set(f"Listening · local {event[1]} {event[2].title()} model")
+                        index = self.device_combo.current()
+                        device_label = self.devices[index].label if 0 <= index < len(self.devices) else "selected device"
+                        self.status_var.set(f"Listening · {device_label} · local {event[1]} {event[2].title()} model")
                         self._append_transcript("[Audio capture started.]")
                 elif event[0] == "overrun":
                     self.status_var.set(f"Audio overloaded: dropped {event[1]} old blocks. Recognition may miss words.")
+                elif event[0] == "input_level":
+                    self.input_level_dbfs = event[1]
+                    if event[1] < -55:
+                        label = "very quiet · check source, mute, and volume"
+                    elif event[1] < -38:
+                        label = "quiet · try the input gain option if speech is unclear"
+                    else:
+                        label = "audio detected"
+                    self.level_var.set(f"Audio to recognizer: {event[1]:.0f} dBFS · {label}")
                 elif event[0] == "worker_done":
                     if self.audio:
                         self.audio.stop()

@@ -32,10 +32,11 @@ def list_audio_devices() -> list[AudioDevice]:
 class AudioCapture:
     """Capture fixed-size mono PCM blocks in a daemon worker with bounded buffering."""
 
-    def __init__(self, device_id: object, on_block, on_error, auto_gain: bool = False):
+    def __init__(self, device_id: object, on_block, on_error, auto_gain: bool = False, on_level=None):
         self.device_id = device_id
         self.on_block = on_block
         self.on_error = on_error
+        self.on_level = on_level
         self.auto_gain = auto_gain
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -60,6 +61,8 @@ class AudioCapture:
 
             microphone = sc.get_microphone(self.device_id, include_loopback=True)
             frames = int(SAMPLE_RATE * BLOCK_SECONDS)
+            level_blocks = 0
+            level_sum = 0.0
             with microphone.recorder(samplerate=SAMPLE_RATE) as recorder:
                 while not self._stop.is_set():
                     samples = recorder.record(numframes=frames)
@@ -77,6 +80,14 @@ class AudioCapture:
                         samples = samples * self._gain
                     pcm = (np.clip(samples, -1.0, 1.0) * 32767).astype("int16").tobytes()
                     self.on_block(pcm)
+                    if self.on_level:
+                        level_sum += float(np.mean(samples * samples))
+                        level_blocks += 1
+                        if level_blocks >= 4:
+                            rms = level_sum / level_blocks
+                            self.on_level(20.0 * np.log10(max(rms ** 0.5, 1e-6)))
+                            level_blocks = 0
+                            level_sum = 0.0
         except Exception as exc:
             if not self._stop.is_set():
                 self.on_error(str(exc))

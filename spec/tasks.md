@@ -19,6 +19,7 @@
 - [x] **M1-CLEAN-01** — Remove obsolete prototype launchers, utilities, and unused large-model assets from the active project.
 - [x] **M1-OPT-01** — Lazy-load recognition and array libraries until session start/capture in `notetaker/`.
 - [x] **M1-LICENSE-01** — Preserve Hindi Vosk model attribution and Apache license when publishing bundled model.
+- [x] **M1-DIAG-01** — Show selected source and transient capture RMS so users can tell whether audio reaches recognition; clarify alert triggers and music-test limitations.
 
 ## Backlog — do not start before M0 closes
 

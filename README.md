@@ -9,10 +9,11 @@ A small Windows desktop assistant for online classes. It captures rendered meeti
 - Transcribe English locally with CPU-int8 Whisper base.en; transcribe Hindi with the bundled small Vosk model. Only the selected language's recognizer is loaded.
 - Alert in the desktop app and with a local sound for configured names and built-in attendance phrases.
 - Optionally raise quiet input audio before recognition (off by default); this can also make background noise louder and did not improve the clean low-volume reference samples tested.
+- Show the selected source and audio level reaching recognition, which helps identify a muted, quiet, or incorrectly routed device.
 - Save transcript lines and detected moments locally as Markdown.
 - Run with a bounded audio queue so a slow PC cannot consume unbounded memory. English transcription waits for a 12-second audio window and can arrive later if CPU processing falls behind; name/attendance alerts therefore are reminders, not instant notifications. Hindi Vosk emits finalized utterances.
 
-The meeting application must render remote voices to the selected Windows output device. Muting the meeting microphone is fine. Physical speaker mute/volume-zero behavior varies by driver; changing the output route or stopping rendered audio can interrupt capture. Test your device before relying on alerts. Speech recognition can miss words; use alerts as reminders, not proof of attendance.
+The meeting application must render remote voices to the selected Windows output device. Muting the meeting microphone is fine when using system audio; the microphone option captures only the selected mic. Check the in-session audio level: near-silence means the selected source is not receiving useful audio. Physical speaker mute/volume-zero behavior varies by driver; changing the output route or stopping rendered audio can interrupt capture. Alerts require a recognized configured name, custom phrase, or built-in attendance phrase; arbitrary music or speech does not generate an alert. Singing is a poor transcription test. English results can take at least 12 seconds plus CPU processing to appear, and speech recognition can miss words, so use alerts as reminders rather than proof of attendance.
 
 ## Requirements
 

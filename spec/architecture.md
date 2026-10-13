@@ -15,7 +15,7 @@
 
 `Windows loopback/mic → SoundCard capture worker → optional bounded 8× input gain → bounded 240×0.25 s PCM queue → one selected recognizer (English: CPU-int8 Whisper base.en in 12 s windows with 2 s overlap; Hindi: bundled Vosk) → finalized transcript text → exact phrase detector → UI alert + Markdown session file`
 
-No raw audio is persisted. Settings are stored in `%APPDATA%\AI Notetaker\`; session notes are stored in the current user's configured Documents folder under `AI Notetaker\sessions`. The UI shows the exact active note path, can open the notes folder, and reports write errors. The UI thread owns Tk widgets; capture and recognition run in background workers and communicate with the UI through queues.
+No raw audio is persisted. Settings are stored in `%APPDATA%\AI Notetaker\`; session notes are stored in the current user's configured Documents folder under `AI Notetaker\sessions`. The UI shows the exact active note path, can open the notes folder, and reports write errors. The UI thread owns Tk widgets; capture and recognition run in background workers and communicate with the UI through queues. During capture, the UI displays the selected device and one-second RMS audio level (dBFS) sent to the recognizer. This diagnostic is transient and does not retain audio.
 
 ## Directory rules
 
@@ -39,6 +39,7 @@ No raw audio is persisted. Settings are stored in `%APPDATA%\AI Notetaker\`; ses
 | Local sound and visible alert | Implemented, validation pending | Tkinter alert panel + Windows MessageBeep |
 | Timestamped transcript and alert notes | Implemented, validation pending | `Documents\AI Notetaker\sessions\*.md`; exact path is visible in the UI |
 | Quiet-audio gain control | Implemented, validation pending | Optional, user-toggleable, capped at 8×; can raise background noise |
+| Capture-level diagnostic | Implemented, target-device validation pending | One-second RMS level reaching recognition; distinguishes near-silent input from recognizer misses |
 | Google Meet/Zoom/Teams direct integration | Not supported | M2 would require separate platform/API design; generic output capture is current integration |
 | Alert when output is muted/unrouted | Not supported | M2 would require a different capture route and explicit verification |
 | Telegram, phone push, or SMS alert | Not supported | M2; requires credentials, network behavior, and user-configured destination |

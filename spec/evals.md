@@ -56,7 +56,12 @@ The note destination and in-app discovery path were changed to the Windows confi
 - An absent model must stop startup with an actionable error, not silently use cloud recognition.
 - Audio queue overload must stay bounded; a capture failure must be visible.
 - Stopping during active audio must close the note only after the transcription worker flushes queued audio.
+- The capture-level diagnostic must be transient, show near-silence for a silent source and higher readings when the selected device receives sound; verify on the target PC.
 
 ## Gate
 
 M0 remains OPEN until target-machine smoke outcomes and performance observations are recorded. Automated test suite status: NOT RUN. Hardware/manual suite: NOT RUN.
+
+## 2026-10-13 — User-reported live test failure
+
+User reports no transcript while speaking and only a few inaccurate words while music played; no alert was generated. The selected device, live level, language, phrase configuration, and timing during this run were not recorded. This does not establish whether the cause was routing/level, language mismatch, recognizer delay/accuracy, or an alert phrase mismatch. Added a transient one-second RMS level display and explicit selected-source status for the next diagnostic run. Hardware behavior remains UNVERIFIED; repeat the short smoke checks with a spoken phrase in the selected language and a configured alert phrase.
