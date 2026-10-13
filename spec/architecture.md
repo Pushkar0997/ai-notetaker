@@ -14,7 +14,7 @@
 
 `Windows loopback/mic → SoundCard capture worker → bounded 32×0.25 s PCM queue → one Vosk worker → finalized transcript segment → exact phrase detector → UI alert + Markdown session file`
 
-No raw audio is persisted. Settings and session notes are stored in `%APPDATA%\AI Notetaker\`. The UI thread owns Tk widgets; capture and recognition run in background workers and communicate with the UI through queues.
+No raw audio is persisted. Settings are stored in `%APPDATA%\AI Notetaker\`; session notes are stored in the current user's configured Documents folder under `AI Notetaker\sessions`. The UI shows the exact active note path, can open the notes folder, and reports write errors. The UI thread owns Tk widgets; capture and recognition run in background workers and communicate with the UI through queues.
 
 ## Directory rules
 
@@ -36,7 +36,7 @@ No raw audio is persisted. Settings and session notes are stored in `%APPDATA%\A
 | Name alerts | Implemented | User supplies phrase(s); exact phrase match |
 | Attendance alerts | Implemented | Small built-in English/Hindi phrase list; misses possible |
 | Local sound and visible alert | Implemented, validation pending | Tkinter alert panel + Windows MessageBeep |
-| Timestamped transcript and alert notes | Implemented, validation pending | `%APPDATA%\AI Notetaker\sessions\*.md` |
+| Timestamped transcript and alert notes | Implemented, validation pending | `Documents\AI Notetaker\sessions\*.md`; exact path is visible in the UI |
 | Google Meet/Zoom/Teams direct integration | Not supported | M2 would require separate platform/API design; generic output capture is current integration |
 | Alert when output is muted/unrouted | Not supported | M2 would require a different capture route and explicit verification |
 | Telegram, phone push, or SMS alert | Not supported | M2; requires credentials, network behavior, and user-configured destination |
@@ -53,6 +53,6 @@ No raw audio is persisted. Settings and session notes are stored in `%APPDATA%\A
 ## Security/privacy
 
 - No network operation is part of runtime transcription/alerting.
-- Persist settings, transcript text, and detections only in the current user's app-data directory.
+- Persist settings under the current user's app-data directory and transcript text/detections under the current user's Documents directory. Both remain local; do not silently redirect data to a network service.
 - Treat transcript text as sensitive; user controls deletion via Explorer.
 - External messages are prohibited until the user configures an integration and destination.

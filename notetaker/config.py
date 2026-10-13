@@ -20,6 +20,30 @@ def data_dir() -> Path:
     return location
 
 
+def notes_dir() -> Path:
+    """Return the user's actual Documents folder for easy-to-find session notes."""
+    documents = None
+    if os.name == "nt":
+        try:
+            import ctypes
+            from ctypes import wintypes
+
+            buffer = ctypes.create_unicode_buffer(32768)
+            get_folder = ctypes.windll.shell32.SHGetFolderPathW
+            get_folder.argtypes = [
+                wintypes.HWND, ctypes.c_int, wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR,
+            ]
+            get_folder.restype = ctypes.c_long
+            # CSIDL_PERSONAL follows Windows' configured Documents location, including redirects.
+            if get_folder(None, 5, None, 0, buffer) == 0 and buffer.value:
+                documents = Path(buffer.value)
+        except (AttributeError, OSError):
+            pass
+    if documents is None:
+        documents = Path.home() / "Documents"
+    return documents / APP_NAME / "sessions"
+
+
 def default_config() -> dict:
     return {
         "language": "english",

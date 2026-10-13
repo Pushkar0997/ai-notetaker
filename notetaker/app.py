@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import queue
 import threading
 import tkinter as tk
@@ -10,7 +11,7 @@ from tkinter import messagebox, ttk
 from detector import Detector
 
 from .audio_capture import AudioCapture, AudioDevice, list_audio_devices
-from .config import SAMPLE_RATE, load_config, save_config
+from .config import SAMPLE_RATE, load_config, notes_dir, save_config
 from .session_notes import SessionNotes
 from .transcription import OfflineTranscriber
 
@@ -34,6 +35,8 @@ class NotetakerApp:
         self.closing = False
         self.audio_drops = 0
         self.capture_failed = False
+        self.notes_failed = False
+        self.notes_error_reported = False
         self.transcript_line_count = 0
         self._build_ui()
         self.refresh_devices()
@@ -81,8 +84,11 @@ class NotetakerApp:
         self.start_button.pack(side="left")
         self.stop_button = ttk.Button(controls, text="Stop and save", command=self.stop, state="disabled")
         self.stop_button.pack(side="left", padx=8)
+        ttk.Button(controls, text="Open notes folder", command=self.open_notes_folder).pack(side="left", padx=(0, 8))
         self.status_var = tk.StringVar(value="Ready · choose the audio output used by your meeting app")
         ttk.Label(controls, textvariable=self.status_var, wraplength=520).pack(side="left", padx=10)
+        self.notes_var = tk.StringVar(value=f"Session notes folder: {notes_dir()}")
+        ttk.Label(outer, textvariable=self.notes_var, foreground="#555555", wraplength=810).pack(anchor="w", pady=(0, 8))
 
         self.alert_var = tk.StringVar(value="No alerts yet")
         self.alert_label = ttk.Label(outer, textvariable=self.alert_var, padding=10, background="#eef2f5")
@@ -95,8 +101,6 @@ class NotetakerApp:
         self.transcript.configure(yscrollcommand=scroll.set)
         self.transcript.pack(side="left", fill="both", expand=True)
         scroll.pack(side="right", fill="y")
-        self.notes_var = tk.StringVar(value="Session notes are saved locally under your Windows app data folder.")
-        ttk.Label(outer, textvariable=self.notes_var, foreground="#555555", wraplength=810).pack(anchor="w", pady=(8, 0))
         ttk.Label(
             outer,
             text="Loopback listens to the selected Windows output. Muting your meeting microphone is fine. Speaker-volume mute behavior varies by device; output routing or apps that stop rendering can interrupt capture.",
@@ -151,7 +155,9 @@ class NotetakerApp:
             return
         detector = Detector(self.config["names"], self.config["custom_phrases"])
         self.notes = notes
-        self.notes_var.set(f"Saving session notes to {self.notes.path}")
+        self.notes_failed = False
+        self.notes_error_reported = False
+        self.notes_var.set(f"Session note: {self.notes.path}")
         self.stop_worker.clear()
         self.audio_drops = 0
         self.capture_failed = False
@@ -224,7 +230,10 @@ class NotetakerApp:
                 if event[0] == "transcript":
                     self._append_transcript(event[1])
                     if self.notes:
-                        self.notes.add_transcript(event[1])
+                        try:
+                            self.notes.add_transcript(event[1])
+                        except OSError as exc:
+                            self._report_notes_error(exc)
                 elif event[0] == "alerts":
                     self._handle_alerts(*event[1:])
                 elif event[0] == "error":
@@ -237,14 +246,19 @@ class NotetakerApp:
                     self.active = False
                     self.stop_button.configure(state="disabled")
                     if self.notes:
-                        self.notes.close()
+                        try:
+                            self.notes.close()
+                        except OSError as exc:
+                            self._report_notes_error(exc)
                         self.notes = None
                     self.stopping = False
                     self.start_button.configure(state="normal")
-                    self.status_var.set(
-                        "Stopped after capture/transcription error · notes saved locally"
-                        if self.capture_failed else "Session stopped · notes saved locally"
-                    )
+                    if self.notes_failed:
+                        self.status_var.set("Stopped · notes could not be fully saved; see the error message")
+                    elif self.capture_failed:
+                        self.status_var.set("Stopped after capture/transcription error · notes saved locally")
+                    else:
+                        self.status_var.set("Session stopped · notes saved locally")
                     if self.closing:
                         self.root.destroy()
                         return
@@ -269,9 +283,35 @@ class NotetakerApp:
         self.alert_var.set(f"{labels} · {text}")
         self.alert_label.configure(background="#ffe7a3")
         if self.notes:
-            for item in fresh:
-                self.notes.add_alert(item.category, item.phrase, text)
+            try:
+                for item in fresh:
+                    self.notes.add_alert(item.category, item.phrase, text)
+            except OSError as exc:
+                self._report_notes_error(exc)
         self._play_alert()
+
+    def _report_notes_error(self, error: OSError) -> None:
+        self.notes_failed = True
+        if self.notes_error_reported:
+            return
+        self.notes_error_reported = True
+        path = self.notes.path if self.notes else notes_dir()
+        detail = f"Could not write session notes at {path}: {error}"
+        self.status_var.set("Notes could not be fully saved")
+        self._append_transcript(f"[Notes save error: {error}]")
+        messagebox.showerror("Notes could not be saved", detail)
+
+    def open_notes_folder(self) -> None:
+        folder = notes_dir()
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+            if os.name == "nt":
+                os.startfile(str(folder))
+            else:
+                import webbrowser
+                webbrowser.open(folder.as_uri())
+        except OSError as exc:
+            messagebox.showerror("Cannot open notes folder", f"Could not open {folder}: {exc}")
 
     def _play_alert(self) -> None:
         if not self.config.get("alert_sound", True):

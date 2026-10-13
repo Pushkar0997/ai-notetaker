@@ -13,7 +13,7 @@
 ## Rules
 
 - Keep inference, audio processing, alert matching, and session storage local unless the user explicitly authorizes a remote feature.
-- Never save raw audio by default. Store transcripts and settings only under the user's application-data directory.
+- Never save raw audio by default. Store settings under the user's application-data directory and transcripts under the user's Documents directory.
 - Never claim reliable attendance detection, perfect transcription, access to a meeting's private API, or capture of audio that Windows does not render.
 - Use one Vosk model at a time on the target i3/8 GB machine. Keep queues bounded and stop capture cleanly.
 - Update the relevant spec and `AGENT_LOG.md` with each material behavior change.

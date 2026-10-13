@@ -12,6 +12,8 @@ No automated tests or target-device checks have been run in this implementation 
 | EV-4 | C-4 explicit phrase matching | Review detector; evaluate known positive/negative utterances | PENDING |
 | EV-5 | C-5 local note durability | Stop a session and inspect Markdown; confirm queued segments flush | PENDING |
 
+The note destination and in-app discovery path were changed to the Windows configured Documents folder for M1-NOTES-02. This implementation has not yet been exercised in a live app session; EV-5 remains PENDING until the target-PC smoke check confirms the file exists and contains the expected content.
+
 ## Required negative cases
 
 - Unconfigured names must not generate name alerts.

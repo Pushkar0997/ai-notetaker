@@ -13,6 +13,7 @@
 - [x] **M1-ASR-01** — Add single-model finalized-utterance transcription in `notetaker/transcription.py`.
 - [x] **M1-ALERT-01** — Replace fuzzy prototype matches with explicit configured phrases and per-trigger cooldown in `detector.py` and `notetaker/app.py`.
 - [x] **M1-NOTES-01** — Save transcript and alert moments as local Markdown via `notetaker/session_notes.py`.
+- [x] **M1-NOTES-02** — Save notes in the configured Documents folder, expose the exact file and folder in the UI, and report write failures.
 - [x] **M1-SETUP-01** — Document setup and add Windows launcher in `README.md` and `run_windows.bat`.
 - [x] **M1-CLEAN-01** — Remove obsolete prototype launchers, utilities, and unused large-model assets from the active project.
 - [x] **M1-OPT-01** — Lazy-load recognition and array libraries until session start/capture in `notetaker/`.

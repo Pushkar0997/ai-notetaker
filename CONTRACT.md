@@ -32,7 +32,7 @@
 
 ### C-5 — Notes are durable, local, and transparent
 
-**Rule:** Only finalized recognition segments and detected moments are saved to `%APPDATA%\AI Notetaker\sessions` as UTF-8 Markdown; stop drains queued audio before closing the note file.
+**Rule:** Only finalized recognition segments and detected moments are saved to `Documents\AI Notetaker\sessions` as UTF-8 Markdown; the app shows the exact file path and provides a button to open the folder. Stop drains queued audio before closing the note file, and write failures are reported visibly.
 **Why:** The user should be able to review what was heard without recording all audio.
 **Violation:** Writing partial recognition repeatedly, losing accepted segments on stop, or saving to a shared/remote destination.
 **Detection:** Trace the stop and worker-done flow; inspect generated note format; see EV-5.
@@ -47,7 +47,7 @@
 - Time: local machine timezone; note timestamps use `YYYY-MM-DD HH:MM:SS` with timezone where available; transcript line times use `HH:MM:SS`.
 - Note encoding: UTF-8 Markdown, file name `YYYY-MM-DD_HH-MM-SS.md`; if that exists, append a two-digit numeric suffix.
 - Detection dedupe: 30-second cooldown per normalized `(category, phrase)`.
-- Config: JSON under `%APPDATA%\AI Notetaker\settings.json`; no secrets are currently stored.
+- Config: JSON under `%APPDATA%\AI Notetaker\settings.json`; session Markdown under the current user's configured Documents folder; no secrets are currently stored.
 
 ## Never do this
 

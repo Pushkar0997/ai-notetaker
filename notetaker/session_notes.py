@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from .config import data_dir
+from .config import notes_dir
 
 
 class SessionNotes:
     def __init__(self, title: str = "Class session"):
         stamp = datetime.now().astimezone()
-        directory = data_dir() / "sessions"
+        directory = notes_dir()
         directory.mkdir(parents=True, exist_ok=True)
         base = f"{stamp:%Y-%m-%d_%H-%M-%S}"
         suffix = 1

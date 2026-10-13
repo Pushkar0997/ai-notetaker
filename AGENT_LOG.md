@@ -1,5 +1,15 @@
 # Agent log
 
+## 2026-10-13 — Desktop — Make saved notes discoverable and report write failures
+
+**Milestone:** M1 — local monitor implementation (validation pending)
+**Tasks attempted:** M1-NOTES-02
+**Landed:** Moved session Markdown from hidden AppData to the Windows configured Documents folder; added an in-app folder opener and exact active-note path; made note write/close errors visible. Kept settings in AppData and raw audio out of storage.
+**Did not land:** Recovery of the earlier session file; the expected old AppData session folder was absent. No live Windows app or audio session was run for this change.
+**Blockers:** User must rerun a short session to observe the target PC's configured Documents location and confirm a Markdown file is created there.
+**Spec changes:** Updated C-5, architecture, README, smoke checklist, tasks, and evaluation status to match the new destination.
+**Next action:** Run the updated smoke checklist on the target Windows PC; verify the app's displayed path, folder button, and saved file.
+
 ## 2026-10-13 — Desktop — M1 cleanup and optimization
 
 **Milestone:** M1 — local monitor implementation (validation pending)

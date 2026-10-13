@@ -15,7 +15,8 @@ Run on the target Windows 10/11 PC. Record OS, Python version, chosen device, mo
 - [ ] Speak a configured name; the alert panel and local beep fire once, then are suppressed for the cooldown.
 - [ ] Play attendance phrases; an attendance alert appears.
 - [ ] Stop during speech; the app stops capture and the Markdown note includes recognized final text.
-- [ ] Verify session folder contains Markdown/settings only and no audio recording.
+- [ ] Confirm the exact Markdown path stays visible after Stop; **Open notes folder** opens its parent folder and the file exists there.
+- [ ] Verify the session folder contains Markdown notes only and no audio recording; settings remain in `%APPDATA%\AI Notetaker`.
 - [ ] Set Windows volume to zero and observe whether the device still supplies loopback; record the result. Route the meeting to another output and confirm capture follows only the selected source.
 
 ## Failure and resource behavior

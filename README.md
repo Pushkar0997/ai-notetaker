@@ -24,7 +24,7 @@ The meeting application must render remote voices to the selected Windows output
 1. Install Python 3.11 (64-bit) and enable the Python launcher (`py`).
 2. Double-click `run_windows.bat`. It creates `.venv`, installs the listed dependencies, and opens the app. The first install needs internet for Python packages; transcription itself works offline.
 3. Select the system-audio loopback source (preselected when available), choose English or Hindi, enter the name(s) you want watched, then select **Start class session**.
-4. Select **Stop and save** after class. Session files are written to `%APPDATA%\AI Notetaker\sessions`.
+4. Select **Stop and save** after class. Session files are written to your Windows **Documents\AI Notetaker\sessions** folder. The app displays the exact file path and **Open notes folder** opens the folder directly. Settings remain under `%APPDATA%\AI Notetaker`.
 
 You can also use PowerShell:
 
@@ -36,7 +36,7 @@ py -3.11 -m venv .venv
 
 ## Privacy and limits
 
-Audio is processed on the computer and is not written to disk. Transcripts and settings are saved under your Windows app data folder. There is no cloud transcription, meeting login, Google Meet/Zoom/Teams API integration, Telegram/phone notification, or semantic LLM summary in this version. The notes are a local transcript with important moments marked, not a generated lecture summary. Telegram is listed as follow-up work so its bot credentials and chat destination can be configured deliberately.
+Audio is processed on the computer and is not written to disk. Transcripts are saved in your Documents folder and settings in your Windows app data folder. There is no cloud transcription, meeting login, Google Meet/Zoom/Teams API integration, Telegram/phone notification, or semantic LLM summary in this version. The notes are a local transcript with important moments marked, not a generated lecture summary. Telegram is listed as follow-up work so its bot credentials and chat destination can be configured deliberately.
 
 ## Project map
 
