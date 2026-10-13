@@ -32,12 +32,14 @@ def list_audio_devices() -> list[AudioDevice]:
 class AudioCapture:
     """Capture fixed-size mono PCM blocks in a daemon worker with bounded buffering."""
 
-    def __init__(self, device_id: object, on_block, on_error):
+    def __init__(self, device_id: object, on_block, on_error, auto_gain: bool = False):
         self.device_id = device_id
         self.on_block = on_block
         self.on_error = on_error
+        self.auto_gain = auto_gain
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
+        self._gain = 1.0
 
     def start(self) -> None:
         if self._thread and self._thread.is_alive():
@@ -63,6 +65,16 @@ class AudioCapture:
                     samples = recorder.record(numframes=frames)
                     if samples.ndim == 2:
                         samples = samples.mean(axis=1)
+                    if self.auto_gain:
+                        rms = float(np.sqrt(np.mean(samples * samples)))
+                        if rms >= 0.001:
+                            target_gain = min(8.0, max(1.0, 0.08 / rms))
+                        else:
+                            target_gain = 1.0
+                        # Raise quiet input promptly, but release gain more slowly to avoid pumping.
+                        smoothing = 0.5 if target_gain > self._gain else 0.15
+                        self._gain += (target_gain - self._gain) * smoothing
+                        samples = samples * self._gain
                     pcm = (np.clip(samples, -1.0, 1.0) * 32767).astype("int16").tobytes()
                     self.on_block(pcm)
         except Exception as exc:

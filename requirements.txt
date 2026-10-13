@@ -1,3 +1,6 @@
 vosk>=0.3.45,<0.4
+faster-whisper>=1.1,<2
+# faster-whisper 1.2.x passes an argument removed by PyAV 19.
+av>=11,<19
 soundcard>=0.4.2,<0.6
 numpy>=1.24,<3

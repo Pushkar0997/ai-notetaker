@@ -4,14 +4,14 @@
 
 ### C-1 — Local processing by default
 
-**Rule:** Captured audio is passed to the local Vosk recognizer and is never written to a file or transmitted by the default application.
+**Rule:** Captured audio is passed to one local recognizer (Whisper for English or Vosk for Hindi) and is never written to a file or transmitted by the default application. English model weights may be downloaded once from Hugging Face; meeting audio is never sent there.
 **Why:** Class conversations may contain personal information; local processing is the product's core promise.
 **Violation:** Adding cloud transcription, raw-audio persistence, or an external notification without explicit opt-in.
 **Detection:** Review all audio data flows in `notetaker/audio_capture.py` and `notetaker/app.py`; see EV-1 in `spec/evals.md`.
 
 ### C-2 — Bounded memory and single recognizer
 
-**Rule:** Audio buffering remains bounded at 32 blocks of 0.25 seconds each, and only one language model/recognizer is loaded per session.
+**Rule:** Audio buffering remains bounded at 240 blocks of 0.25 seconds each (60 seconds; approximately 1.9 MB of PCM), and only one language model/recognizer is loaded per session.
 **Why:** The target computer has 8 GB RAM and an Intel 10th-generation i3.
 **Violation:** An unbounded queue, simultaneous bilingual recognizers, or loading the large models in the prototype's `models/` directory.
 **Detection:** Inspect queue construction and model construction; see EV-2.
@@ -37,13 +37,21 @@
 **Violation:** Writing partial recognition repeatedly, losing accepted segments on stop, or saving to a shared/remote destination.
 **Detection:** Trace the stop and worker-done flow; inspect generated note format; see EV-5.
 
+### C-6 — Quiet-audio boost is bounded and optional
+
+**Rule:** Automatic input gain is user-toggleable, raises gain by at most 8×, and operates only on in-memory audio blocks before local recognition. It may raise background noise along with speech.
+**Why:** Soft speech can arrive too quiet for useful recognition, but aggressive gain can make noisy rooms worse.
+**Violation:** Unbounded gain, saving amplified audio, or describing gain control as noise removal.
+**Detection:** Inspect the capture path and compare the same known sample with the control enabled and disabled; see EV-6.
+
 ## Pinned conventions
 
 - Platform: Windows 10/11 desktop; Python 3.10–3.12, 64-bit.
 - Audio: 16,000 Hz mono signed 16-bit PCM; capture blocks are 0.25 seconds.
-- Audio work buffer: maximum 32 blocks (8 seconds); when full, discard the oldest block to bound memory and favor fresh audio.
-- Languages: English or Hindi selected per session; exactly one Vosk model is active.
-- Model paths: root folders `model-english/` and `model-hindi/`; no other model folders are part of the active application.
+- Audio work buffer: maximum 240 blocks (60 seconds; approximately 1.9 MB PCM); when full, discard the oldest block to bound memory and favor fresh audio.
+- Automatic gain: disabled on a new install; user may enable the bounded 8× boost, with noise/recognition tradeoffs.
+- Languages: English or Hindi selected per session; exactly one recognizer is active (Whisper `base.en` for English; bundled small Vosk model for Hindi).
+- Model cache: `%APPDATA%\AI Notetaker\models`; English first use downloads approximately 150 MB, later use can run offline. Hindi uses the bundled model and does not download weights.
 - Time: local machine timezone; note timestamps use `YYYY-MM-DD HH:MM:SS` with timezone where available; transcript line times use `HH:MM:SS`.
 - Note encoding: UTF-8 Markdown, file name `YYYY-MM-DD_HH-MM-SS.md`; if that exists, append a two-digit numeric suffix.
 - Detection dedupe: 30-second cooldown per normalized `(category, phrase)`.

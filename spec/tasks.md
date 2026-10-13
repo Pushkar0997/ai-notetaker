@@ -10,14 +10,15 @@
 
 - [x] **M1-APP-01** — Add a Tkinter session UI in `notetaker/app.py` for source, language, watched phrases, live transcript, alert, and stop.
 - [x] **M1-AUDIO-01** — Add Windows loopback/microphone capture and bounded queue handling in `notetaker/audio_capture.py` and `notetaker/app.py`.
-- [x] **M1-ASR-01** — Add single-model finalized-utterance transcription in `notetaker/transcription.py`.
+- [x] **M1-ASR-01** — Add language-specific finalized-utterance transcription in `notetaker/transcription.py` (English Whisper; Hindi Vosk).
+- [x] **M1-ASR-02** — Add optional, capped automatic gain for quiet input in `notetaker/audio_capture.py` and expose its tradeoff in the UI.
 - [x] **M1-ALERT-01** — Replace fuzzy prototype matches with explicit configured phrases and per-trigger cooldown in `detector.py` and `notetaker/app.py`.
 - [x] **M1-NOTES-01** — Save transcript and alert moments as local Markdown via `notetaker/session_notes.py`.
 - [x] **M1-NOTES-02** — Save notes in the configured Documents folder, expose the exact file and folder in the UI, and report write failures.
 - [x] **M1-SETUP-01** — Document setup and add Windows launcher in `README.md` and `run_windows.bat`.
 - [x] **M1-CLEAN-01** — Remove obsolete prototype launchers, utilities, and unused large-model assets from the active project.
 - [x] **M1-OPT-01** — Lazy-load recognition and array libraries until session start/capture in `notetaker/`.
-- [x] **M1-LICENSE-01** — Preserve Vosk model attribution and Apache license when publishing bundled models.
+- [x] **M1-LICENSE-01** — Preserve Hindi Vosk model attribution and Apache license when publishing bundled model.
 
 ## Backlog — do not start before M0 closes
 

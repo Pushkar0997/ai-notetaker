@@ -15,7 +15,7 @@
 - Keep inference, audio processing, alert matching, and session storage local unless the user explicitly authorizes a remote feature.
 - Never save raw audio by default. Store settings under the user's application-data directory and transcripts under the user's Documents directory.
 - Never claim reliable attendance detection, perfect transcription, access to a meeting's private API, or capture of audio that Windows does not render.
-- Use one Vosk model at a time on the target i3/8 GB machine. Keep queues bounded and stop capture cleanly.
+- Use only one recognizer at a time: CPU-int8 Whisper base.en for English and the bundled small Vosk Hindi model for Hindi, based on the checked-in comparison. Keep queues bounded and stop capture cleanly.
 - Update the relevant spec and `AGENT_LOG.md` with each material behavior change.
 - Run `python scripts/spec_lint.py` after changing the spec files; it checks required files, unresolved placeholders, and invariant-to-evaluation links.
 - Do not add real credentials to tracked files. External messaging requires user-supplied configuration and must not be enabled silently.

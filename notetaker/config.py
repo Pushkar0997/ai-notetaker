@@ -10,6 +10,7 @@ from pathlib import Path
 APP_NAME = "AI Notetaker"
 SAMPLE_RATE = 16_000
 BLOCK_SECONDS = 0.25
+AUDIO_QUEUE_BLOCKS = 240  # 60 seconds of mono 16 kHz PCM (about 1.9 MB)
 
 
 def data_dir() -> Path:
@@ -51,6 +52,7 @@ def default_config() -> dict:
         "custom_phrases": [],
         "audio_device": "",
         "audio_is_loopback": True,
+        "auto_gain": False,
         "alert_sound": True,
         "alert_cooldown_seconds": 30,
     }
@@ -76,6 +78,7 @@ def load_config() -> dict:
     if not isinstance(config.get("audio_device"), str):
         config["audio_device"] = ""
     config["audio_is_loopback"] = bool(config.get("audio_is_loopback", True))
+    config["auto_gain"] = bool(config.get("auto_gain", False))
     try:
         config["alert_cooldown_seconds"] = min(3600, max(1, int(config.get("alert_cooldown_seconds", 30))))
     except (TypeError, ValueError):

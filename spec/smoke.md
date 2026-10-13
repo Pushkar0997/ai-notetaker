@@ -5,7 +5,7 @@ Run on the target Windows 10/11 PC. Record OS, Python version, chosen device, mo
 ## Cold start
 
 - [ ] On a clean supported Python install, run `run_windows.bat`; package installation completes and the app window opens.
-- [ ] If a selected model folder is renamed temporarily, Start shows the missing-model path and does not begin capture; restore the folder afterward.
+- [ ] In English, confirm first use downloads Whisper base.en once and a later session starts offline. For Hindi, confirm the bundled model loads without a download.
 - [ ] Refresh lists the actual Windows loopback output and microphone sources, if present.
 
 ## Class monitoring
@@ -14,6 +14,7 @@ Run on the target Windows 10/11 PC. Record OS, Python version, chosen device, mo
 - [ ] Repeat with a known Hindi phrase and Hindi selected.
 - [ ] Speak a configured name; the alert panel and local beep fire once, then are suppressed for the cooldown.
 - [ ] Play attendance phrases; an attendance alert appears.
+- [ ] Compare a quiet known phrase with **Automatically boost quiet audio** off and on; record whether speech becomes clearer and whether background noise causes false recognition.
 - [ ] Stop during speech; the app stops capture and the Markdown note includes recognized final text.
 - [ ] Confirm the exact Markdown path stays visible after Stop; **Open notes folder** opens its parent folder and the file exists there.
 - [ ] Verify the session folder contains Markdown notes only and no audio recording; settings remain in `%APPDATA%\AI Notetaker`.

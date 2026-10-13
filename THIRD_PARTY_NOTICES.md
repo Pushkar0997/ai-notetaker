@@ -2,7 +2,7 @@
 
 ## Vosk speech-recognition models
 
-The `model-english/` and `model-hindi/` directories contain the small English and Hindi Vosk models from Alpha Cephei Inc. The English model directory identifies Copyright 2020 Alpha Cephei Inc. Vosk's model catalog lists these models under the Apache License, Version 2.0.
+The `model-hindi/` directory contains the small Hindi Vosk model from Alpha Cephei Inc. Vosk's model catalog lists this model under the Apache License, Version 2.0. The unused English Vosk model was removed; English recognition uses the separately downloaded faster-whisper model.
 
 - Model catalog and source: [Vosk Models](https://alphacephei.com/vosk/models)
 - License text included at [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)

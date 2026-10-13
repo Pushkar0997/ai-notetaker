@@ -15,11 +15,12 @@
 
 ## M1 — Local class monitor (IMPLEMENTED; VALIDATION PENDING)
 
-**Deliverable:** Start/stop UI, one-model English/Hindi offline transcription, loopback/mic source selection, phrase alerts, local notes.
+**Deliverable:** Start/stop UI, language-specific local transcription (English Whisper base.en; Hindi Vosk), loopback/mic source selection, phrase alerts, local notes, and optional quiet-audio gain.
 **Exit criteria:**
 
 - [x] User can configure language, names, and custom alert phrases.
 - [x] Audio work queue has an explicit finite capacity and one recognizer is loaded.
+- [x] Public reference clips compared both engines; selected Whisper for English and Vosk for Hindi; see EV-7.
 - [x] Session notes and alert markers are written locally; raw audio is not saved.
 - [ ] Target Windows setup and smoke behavior are observed (M0).
 

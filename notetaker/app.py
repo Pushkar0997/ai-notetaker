@@ -11,7 +11,7 @@ from tkinter import messagebox, ttk
 from detector import Detector
 
 from .audio_capture import AudioCapture, AudioDevice, list_audio_devices
-from .config import SAMPLE_RATE, load_config, notes_dir, save_config
+from .config import AUDIO_QUEUE_BLOCKS, SAMPLE_RATE, load_config, notes_dir, save_config
 from .session_notes import SessionNotes
 from .transcription import OfflineTranscriber
 
@@ -26,7 +26,7 @@ class NotetakerApp:
         self.devices: list[AudioDevice] = []
         self.audio: AudioCapture | None = None
         self.notes: SessionNotes | None = None
-        self.audio_queue: queue.Queue = queue.Queue(maxsize=32)
+        self.audio_queue: queue.Queue = queue.Queue(maxsize=AUDIO_QUEUE_BLOCKS)
         self.ui_queue: queue.Queue = queue.Queue()
         self.stop_worker = threading.Event()
         self.cooldowns: dict[tuple[str, str], float] = {}
@@ -66,7 +66,7 @@ class NotetakerApp:
         self.language_var = tk.StringVar(value=self.config.get("language", "english"))
         self.language_combo = ttk.Combobox(settings, textvariable=self.language_var, values=("english", "hindi"), state="readonly", width=16)
         self.language_combo.grid(row=1, column=1, sticky="w", pady=4)
-        ttk.Label(settings, text="Uses one small offline model to reduce CPU/RAM.", foreground="#555555").grid(row=1, column=2, sticky="w", padx=(8, 0))
+        ttk.Label(settings, text="English: Whisper · Hindi: Vosk · both run locally.", foreground="#555555").grid(row=1, column=2, sticky="w", padx=(8, 0))
 
         ttk.Label(settings, text="Your name(s)").grid(row=2, column=0, sticky="w", padx=(0, 8), pady=4)
         self.names_var = tk.StringVar(value=", ".join(self.config.get("names", [])))
@@ -77,6 +77,14 @@ class NotetakerApp:
         self.phrases_var = tk.StringVar(value=", ".join(self.config.get("custom_phrases", [])))
         ttk.Entry(settings, textvariable=self.phrases_var).grid(row=3, column=1, sticky="ew", pady=4)
         ttk.Label(settings, text="Attendance phrases are built in.", foreground="#555555").grid(row=3, column=2, sticky="w", padx=(8, 0))
+
+        self.auto_gain_var = tk.BooleanVar(value=self.config.get("auto_gain", False))
+        ttk.Checkbutton(
+            settings,
+            text="Automatically boost quiet audio",
+            variable=self.auto_gain_var,
+        ).grid(row=4, column=1, sticky="w", pady=4)
+        ttk.Label(settings, text="Off by default; may raise noise or hurt clarity.", foreground="#555555").grid(row=4, column=2, sticky="w", padx=(8, 0))
 
         controls = ttk.Frame(outer)
         controls.pack(fill="x", pady=12)
@@ -134,10 +142,8 @@ class NotetakerApp:
             messagebox.showerror("Audio source needed", "Choose an audio source before starting.")
             return
         language = self.language_var.get().strip().lower()
-        try:
-            transcriber = OfflineTranscriber(language, SAMPLE_RATE)
-        except Exception as exc:
-            messagebox.showerror("Cannot start transcription", str(exc))
+        if language not in {"english", "hindi"}:
+            messagebox.showerror("Language needed", "Choose English or Hindi before starting.")
             return
 
         self.config.update({
@@ -146,6 +152,7 @@ class NotetakerApp:
             "custom_phrases": self._split(self.phrases_var.get()),
             "audio_device": self.devices[index].name,
             "audio_is_loopback": self.devices[index].is_loopback,
+            "auto_gain": self.auto_gain_var.get(),
         })
         try:
             save_config(self.config)
@@ -166,17 +173,21 @@ class NotetakerApp:
         self.transcript.delete("1.0", "end")
         self.transcript.configure(state="disabled")
         self.transcript_line_count = 0
-        self.audio_queue = queue.Queue(maxsize=32)
-        worker = threading.Thread(target=self._transcribe, args=(transcriber, detector), name="transcription", daemon=True)
+        self.audio_queue = queue.Queue(maxsize=AUDIO_QUEUE_BLOCKS)
+        worker = threading.Thread(target=self._transcribe, args=(language, detector), name="transcription", daemon=True)
         worker.start()
         device = self.devices[index]
-        self.audio = AudioCapture(device.device_id, self._queue_audio, self._capture_error)
-        self.audio.start()
+        self.audio = AudioCapture(
+            device.device_id,
+            self._queue_audio,
+            self._capture_error,
+            auto_gain=self.config["auto_gain"],
+        )
         self.active = True
         self.start_button.configure(state="disabled")
         self.stop_button.configure(state="normal")
-        self.status_var.set(f"Listening · {device.label} · {language.title()} offline model")
-        self._append_transcript("[Session started. Audio is processed locally; raw audio is not saved.]")
+        self.status_var.set(f"Starting local {language.title()} recognizer · {device.label}")
+        self._append_transcript("[Preparing local recognizer. Audio capture starts after it is ready; raw audio is not saved.]")
 
     @staticmethod
     def _split(value: str) -> list[str]:
@@ -200,8 +211,13 @@ class NotetakerApp:
         self.stop_worker.set()
         self.ui_queue.put(("error", error))
 
-    def _transcribe(self, transcriber: OfflineTranscriber, detector: Detector) -> None:
+    def _transcribe(self, language: str, detector: Detector) -> None:
         try:
+            engine = "Whisper" if language == "english" else "Vosk"
+            status = "Loading local Whisper model · first use downloads it once" if language == "english" else "Loading local Hindi model"
+            self.ui_queue.put(("status", status))
+            transcriber = OfflineTranscriber(language, SAMPLE_RATE)
+            self.ui_queue.put(("recognizer_ready", engine, language))
             while not self.stop_worker.is_set() or not self.audio_queue.empty():
                 try:
                     pcm = self.audio_queue.get(timeout=0.2)
@@ -210,6 +226,7 @@ class NotetakerApp:
                 self._publish_text(transcriber.accept(pcm), detector)
             self._publish_text(transcriber.finish(), detector)
         except Exception as exc:
+            self.stop_worker.set()
             self.ui_queue.put(("error", f"Transcription failed: {exc}"))
             self.capture_failed = True
         finally:
@@ -238,11 +255,21 @@ class NotetakerApp:
                     self._handle_alerts(*event[1:])
                 elif event[0] == "error":
                     self.capture_failed = True
-                    self.status_var.set(f"Audio capture error: {event[1]}")
-                    self._append_transcript(f"[Audio capture error: {event[1]}]")
+                    self.status_var.set(f"Session error: {event[1]}")
+                    self._append_transcript(f"[Session error: {event[1]}]")
+                elif event[0] == "status":
+                    self.status_var.set(event[1])
+                elif event[0] == "recognizer_ready":
+                    if self.active and not self.stop_worker.is_set() and self.audio:
+                        self.audio.start()
+                        self.status_var.set(f"Listening · local {event[1]} {event[2].title()} model")
+                        self._append_transcript("[Audio capture started.]")
                 elif event[0] == "overrun":
                     self.status_var.set(f"Audio overloaded: dropped {event[1]} old blocks. Recognition may miss words.")
                 elif event[0] == "worker_done":
+                    if self.audio:
+                        self.audio.stop()
+                        self.audio = None
                     self.active = False
                     self.stop_button.configure(state="disabled")
                     if self.notes:

@@ -1,5 +1,15 @@
 # Agent log
 
+## 2026-10-13 — Desktop — Compare and tune local speech recognition
+
+**Milestone:** M0 — target-machine correctness and validation (OPEN)
+**Tasks attempted:** M1-ASR-02, EV-6, EV-7
+**Landed:** Compared Vosk and CPU-int8 Whisper on public English/Hindi references on the i3-1005G1 / 7.8 GiB target PC. Selected Whisper base.en with 12-second windows for English and bundled Vosk for Hindi; removed the unused English Vosk model. Added the PyAV compatibility pin, made auto gain opt-in, and delayed capture until the recognizer is ready.
+**Did not land:** Broad classroom/noise evaluation, live loopback test, or peak CPU/RAM measurement.
+**Blockers:** Live class audio and device routing still require the user's manual smoke check.
+**Spec changes:** Updated decisions, evaluation, architecture, user docs, and task record with the measured results and their limits.
+**Next action:** Run `spec/smoke.md` during a short meeting and record transcript quality, alert delay, and device behavior.
+
 ## 2026-10-13 — Desktop — Make saved notes discoverable and report write failures
 
 **Milestone:** M1 — local monitor implementation (validation pending)
